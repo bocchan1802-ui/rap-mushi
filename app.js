@@ -1,17 +1,17 @@
-// ラップムしクローン - アプリケーション
+// ラップムしクローン - アプリケーション（高速化版）
 
 class RapMushiApp {
   constructor() {
     // 音声ファイルの設定（korosukeの声）
     this.audioFiles = {
-      1: { file: 'audio/phrase1.wav', text: 'ヨーシ！' },
-      2: { file: 'audio/phrase2.wav', text: 'マジ！？' },
-      3: { file: 'audio/phrase3.wav', text: 'ウケる！' },
-      4: { file: 'audio/phrase4.wav', text: 'ナイス！' },
-      5: { file: 'audio/phrase5.wav', text: 'やばみ！' },
-      6: { file: 'audio/phrase6.wav', text: 'すごぉ！' },
-      7: { file: 'audio/phrase7.wav', text: 'へぇ〜' },
-      8: { file: 'audio/phrase8.wav', text: 'あざっ！' }
+      1: { file: 'audio/phrase1.wav', text: 'ヨーシ！', buffer: null },
+      2: { file: 'audio/phrase2.wav', text: 'マジ！？', buffer: null },
+      3: { file: 'audio/phrase3.wav', text: 'ウケる！', buffer: null },
+      4: { file: 'audio/phrase4.wav', text: 'ナイス！', buffer: null },
+      5: { file: 'audio/phrase5.wav', text: 'やばみ！', buffer: null },
+      6: { file: 'audio/phrase6.wav', text: 'すごぉ！', buffer: null },
+      7: { file: 'audio/phrase7.wav', text: 'へぇ〜', buffer: null },
+      8: { file: 'audio/phrase8.wav', text: 'あざっ！', buffer: null }
     };
 
     this.isRecording = false;
@@ -21,9 +21,12 @@ class RapMushiApp {
     this.analyser = null;
     this.mediaStream = null;
     this.mockMode = false; // 音声ファイル使用モード（korosukeの声）
+    this.audioBuffersLoaded = false; // プリロード完了フラグ
+    this.activeSources = []; // 再生中のAudioSourceを追跡
 
     this.initElements();
     this.initAudio();
+    this.preloadAudio(); // 👈 音声プリロード
     this.bindEvents();
   }
 
@@ -40,6 +43,7 @@ class RapMushiApp {
     this.helpBtn = document.getElementById('helpBtn');
     this.helpModal = document.getElementById('helpModal');
     this.closeHelp = document.getElementById('closeHelp');
+    this.loadingIndicator = document.querySelector('.loading-indicator');
   }
 
   initAudio() {
@@ -50,6 +54,52 @@ class RapMushiApp {
     } catch (e) {
       console.warn('Web Audio API not available');
     }
+  }
+
+  // 👈 音声プリロード機能（ゲーム開始時に全ての音声をメモリに読み込み）
+  async preloadAudio() {
+    if (!this.audioContext) {
+      console.warn('AudioContext not available');
+      return;
+    }
+
+    // AudioContextのユーザー操作要求に対処
+    if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+    }
+
+    console.log('🎵 音声プリロード開始...');
+
+    const loadPromises = Object.entries(this.audioFiles).map(async ([id, phrase]) => {
+      try {
+        const response = await fetch(phrase.file);
+        if (!response.ok) throw new Error(`Failed to load ${phrase.file}`);
+
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+
+        this.audioFiles[id].buffer = audioBuffer;
+        console.log(`  ✅ Loaded: ${phrase.file}`);
+      } catch (error) {
+        console.warn(`  ⚠️ Failed to load ${phrase.file}:`, error);
+      }
+    });
+
+    await Promise.all(loadPromises);
+    this.audioBuffersLoaded = true;
+
+    console.log('🎉 音声プリロード完了！全ての音声がメモリに読み込まれました');
+
+    // ローディング表示を非表示
+    if (this.loadingIndicator) {
+      this.loadingIndicator.style.display = 'none';
+    }
+
+    // パッドを有効化
+    this.rapPads.forEach(pad => {
+      pad.classList.add('loaded');
+      pad.disabled = false;
+    });
   }
 
   async startAudioAnalysis() {
@@ -154,11 +204,11 @@ class RapMushiApp {
     // 虫をラップ状態に
     this.mushiCharacter.classList.add('rapping');
 
-    // 音声再生（モックモードではWeb Speech APIを使用）
+    // 👈 高速再生：プリロードされたAudioBufferを使用
     if (this.mockMode) {
       this.speakMock(phrase.text);
     } else {
-      this.playAudioFile(phrase.file);
+      this.playAudioBuffer(soundId);
     }
 
     // 録音中なら履歴に追加
@@ -175,6 +225,39 @@ class RapMushiApp {
     setTimeout(() => {
       this.mushiCharacter.classList.remove('rapping');
     }, 500);
+  }
+
+  // 👈 高速再生：AudioBufferを使用した即座再生
+  playAudioBuffer(soundId) {
+    if (!this.audioContext) {
+      console.warn('AudioContext not available');
+      return;
+    }
+
+    const phrase = this.audioFiles[soundId];
+
+    // AudioBufferがプリロードされている場合
+    if (phrase.buffer) {
+      const source = this.audioContext.createBufferSource();
+      source.buffer = phrase.buffer;
+      source.connect(this.audioContext.destination);
+      source.start(0);
+
+      // 再生完了後にクリーンアップ
+      source.onended = () => {
+        const index = this.activeSources.indexOf(source);
+        if (index > -1) {
+          this.activeSources.splice(index, 1);
+        }
+      };
+      this.activeSources.push(source);
+
+      return;
+    }
+
+    // プリロードされていない場合（フォールバック）
+    console.warn(`Audio buffer for sound ${soundId} not loaded, using fallback`);
+    this.playAudioFile(phrase.file);
   }
 
   speakMock(text) {
@@ -194,7 +277,7 @@ class RapMushiApp {
   }
 
   playAudioFile(filePath) {
-    // 実際の音声ファイルを再生
+    // フォールバック：Audio要素を使用
     const audio = new Audio(filePath);
     audio.play().catch(e => {
       console.warn('Audio file not found, falling back to mock:', e);
@@ -247,7 +330,7 @@ class RapMushiApp {
       if (this.mockMode) {
         await this.speakMockAsync(phrase.text);
       } else {
-        await this.playAudioFileAsync(this.audioFiles[phrase.id].file);
+        await this.playAudioBufferAsync(phrase.id);
       }
 
       await this.delay(100);
@@ -275,6 +358,38 @@ class RapMushiApp {
     });
   }
 
+  // 👈 高速再生：AudioBufferを使用した非同期再生
+  async playAudioBufferAsync(soundId) {
+    if (!this.audioContext) {
+      console.warn('AudioContext not available');
+      return;
+    }
+
+    const phrase = this.audioFiles[soundId];
+
+    // AudioBufferがプリロードされている場合
+    if (phrase.buffer) {
+      return new Promise((resolve) => {
+        const source = this.audioContext.createBufferSource();
+        source.buffer = phrase.buffer;
+        source.connect(this.audioContext.destination);
+        source.start(0);
+
+        source.onended = () => {
+          const index = this.activeSources.indexOf(source);
+          if (index > -1) {
+            this.activeSources.splice(index, 1);
+          }
+          resolve();
+        };
+        this.activeSources.push(source);
+      });
+    }
+
+    // フォールバック
+    return this.playAudioFileAsync(phrase.file);
+  }
+
   playAudioFileAsync(filePath) {
     return new Promise((resolve) => {
       const audio = new Audio(filePath);
@@ -291,6 +406,17 @@ class RapMushiApp {
     this.isPlaying = false;
     this.playBtn.classList.remove('playing');
     this.playBtn.querySelector('.btn-text').textContent = '再生';
+
+    // 全てのAudioSourceを停止
+    this.activeSources.forEach(source => {
+      try {
+        source.stop();
+      } catch (e) {
+        // 既に停止済み
+      }
+    });
+    this.activeSources = [];
+
     speechSynthesis.cancel();
   }
 

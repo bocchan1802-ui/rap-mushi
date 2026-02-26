@@ -355,6 +355,57 @@ body {
   padding: 20px;
 }
 
+/* ローディング表示 */
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 255, 136, 0.2);
+  border-top-color: #00ff88;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #00ff88;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.loading-subtext {
+  margin-top: 10px;
+  color: #888;
+  font-size: 0.9em;
+}
+
+/* パッドのローディング状態 */
+.rap-pad:not(.loaded) {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.rap-pad.loaded {
+  opacity: 1;
+}
+
 /* 音量メーター */
 .volume-meter {
   position: fixed;
