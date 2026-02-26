@@ -23,10 +23,9 @@ class RapMushiApp {
     this.mockMode = false; // 音声ファイル使用モード（korosukeの声）
     this.audioBuffersLoaded = false; // プリロード完了フラグ
     this.activeSources = []; // 再生中のAudioSourceを追跡
+    this.isStarted = false; // ゲーム開始フラグ
 
     this.initElements();
-    this.initAudio();
-    this.preloadAudio(); // 👈 音声プリロード
     this.bindEvents();
   }
 
@@ -43,7 +42,9 @@ class RapMushiApp {
     this.helpBtn = document.getElementById('helpBtn');
     this.helpModal = document.getElementById('helpModal');
     this.closeHelp = document.getElementById('closeHelp');
-    this.loadingIndicator = document.querySelector('.loading-indicator');
+    this.loadingIndicator = document.getElementById('loadingIndicator');
+    this.startScreen = document.getElementById('startScreen');
+    this.startBtn = document.getElementById('startBtn');
   }
 
   initAudio() {
@@ -136,6 +137,11 @@ class RapMushiApp {
   }
 
   bindEvents() {
+    // スタートボタン
+    this.startBtn.addEventListener('click', () => {
+      this.startGame();
+    });
+
     // ラップパッド
     this.rapPads.forEach(pad => {
       pad.addEventListener('click', () => {
@@ -189,7 +195,34 @@ class RapMushiApp {
     });
   }
 
+  // 👈 ゲーム開始（スタートボタンクリック時）
+  async startGame() {
+    if (this.isStarted) return;
+
+    // AudioContext初期化
+    this.initAudio();
+
+    // スタート画面を非表示
+    this.startScreen.style.display = 'none';
+
+    // ローディング表示
+    if (this.loadingIndicator) {
+      this.loadingIndicator.style.display = 'flex';
+    }
+
+    // 音声プリロード
+    await this.preloadAudio();
+
+    this.isStarted = true;
+  }
+
   playPhrase(soundId) {
+    // 👈 ゲーム開始前の場合は開始を促す
+    if (!this.isStarted) {
+      this.startGame();
+      return;
+    }
+
     const phrase = this.audioFiles[soundId];
     if (!phrase) return;
 

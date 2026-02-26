@@ -14,11 +14,22 @@
       <button id="helpBtn" class="help-btn">?</button>
     </header>
 
-    <!-- ローディング表示 -->
-    <div class="loading-indicator" id="loadingIndicator">
+ <!-- ローディング表示 -->
+    <div class="loading-indicator" id="loadingIndicator" style="display: none;">
       <div class="loading-spinner"></div>
       <p class="loading-text">🎵 音声データを読み込み中...</p>
       <p class="loading-subtext">マスター、少々お待ちください</p>
+    </div>
+
+    <!-- スタート画面 -->
+    <div class="start-screen" id="startScreen">
+      <div class="start-content">
+        <h1 class="start-title">🎤 ラップムし</h1>
+        <p class="start-subtitle">マスター、タップして始めよう！</p>
+        <button class="start-btn" id="startBtn">
+          <span class="start-btn-text">スタート</span>
+        </button>
+      </div>
     </div>
 
     <!-- メインステージ -->
