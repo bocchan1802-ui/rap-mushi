@@ -1,0 +1,460 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+/* ヘッダー */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  color: #00ff88;
+  font-size: 1.8em;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.help-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #00ff88;
+  background: transparent;
+  color: #00ff88;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ステージ */
+.stage {
+  background: radial-gradient(circle at center, #1a3a2a 0%, #0a1a0a 100%);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 50px rgba(0, 255, 136, 0.1);
+}
+
+/* 虫キャラクター */
+.mushi-character {
+  position: relative;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.mushi-body {
+  width: 120px;
+  height: 100px;
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  border-radius: 60px 60px 40px 40px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+}
+
+.mushi-character.rapping .mushi-body {
+  animation: bounce 0.2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.9); }
+}
+
+.mushi-eyes {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 30px;
+}
+
+.eye {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+}
+
+.eye::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mushi-mouth {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 15px;
+  background: #1a1a2e;
+  border-radius: 0 0 20px 20px;
+  transition: all 0.1s;
+}
+
+.mushi-character.rapping .mushi-mouth {
+  height: 25px;
+  width: 40px;
+  animation: talk 0.15s ease-in-out infinite;
+}
+
+@keyframes talk {
+  0%, 100% { height: 20px; width: 30px; }
+  50% { height: 30px; width: 35px; }
+}
+
+.mushi-legs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: -5px;
+}
+
+.leg {
+  width: 8px;
+  height: 20px;
+  background: #00cc6a;
+  border-radius: 4px;
+}
+
+/* 現在のフレーズ */
+.current-phrase {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#currentText {
+  color: #1a1a2e;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+/* ラップパッド */
+.rap-pads {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.rap-pad {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+  color: #00ff88;
+  font-size: 0.9em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.rap-pad::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(0, 255, 136, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.rap-pad:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.rap-pad:active::before {
+  opacity: 1;
+}
+
+.rap-pad.playing {
+  animation: padGlow 0.3s ease-out;
+}
+
+@keyframes padGlow {
+  0% {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+    color: #1a1a2e;
+    transform: scale(1.05);
+  }
+  100% {
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+    color: #00ff88;
+    transform: scale(1);
+  }
+}
+
+.pad-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* コントロール */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-btn.record {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  color: white;
+}
+
+.control-btn.record.recording {
+  animation: recording 1s ease-in-out infinite;
+}
+
+@keyframes recording {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+}
+
+.control-btn.play {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: white;
+}
+
+.control-btn.play.playing {
+  animation: playing 0.5s ease-in-out infinite;
+}
+
+@keyframes playing {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.control-btn.clear {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  color: white;
+}
+
+.control-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-icon {
+  font-size: 1.5em;
+}
+
+.btn-text {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+/* 履歴 */
+.history {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.history h3 {
+  color: #00ff88;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.history-list {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.history-phrase {
+  color: #ccc;
+  font-size: 0.9em;
+}
+
+.history-time {
+  color: #888;
+  font-size: 0.7em;
+}
+
+.empty {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+}
+
+/* 音量メーター */
+.volume-meter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.volume-bar-bg {
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.volume-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ff88, #00cc6a);
+  transition: width 0.05s;
+}
+
+/* モーダル */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 400px;
+  width: 100%;
+  border: 2px solid #00ff88;
+}
+
+.modal-content h2 {
+  color: #00ff88;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modal-content ol {
+  color: #ccc;
+  line-height: 2;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.modal-content .note {
+  color: #888;
+  font-size: 0.8em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.close-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  color: #1a1a2e;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* レスポンシブ */
+@media (max-width: 480px) {
+  .rap-pads {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .rap-pad {
+    font-size: 0.8em;
+  }
+
+  .control-btn {
+    padding: 12px 15px;
+  }
+
+  .header h1 {
+    font-size: 1.5em;
+  }
+}

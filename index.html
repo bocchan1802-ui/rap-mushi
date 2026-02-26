@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ラップムしクローン</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1>🐛 ラップムし</h1>
+      <button id="helpBtn" class="help-btn">?</button>
+    </header>
+
+    <!-- メインステージ -->
+    <div class="stage">
+      <div class="mushi-character">
+        <div class="mushi-body">
+          <div class="mushi-eyes">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+          </div>
+          <div class="mushi-mouth" id="mushiMouth"></div>
+        </div>
+        <div class="mushi-legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 現在のフレーズ表示 -->
+    <div class="current-phrase">
+      <span id="currentText">タップしてラップ！</span>
+    </div>
+
+    <!-- ラップパッド -->
+    <div class="rap-pads">
+      <button class="rap-pad" data-sound="1">
+        <span class="pad-label">ヨーシ！</span>
+      </button>
+      <button class="rap-pad" data-sound="2">
+        <span class="pad-label">マジ！？</span>
+      </button>
+      <button class="rap-pad" data-sound="3">
+        <span class="pad-label">ウケる！</span>
+      </button>
+      <button class="rap-pad" data-sound="4">
+        <span class="pad-label">ナイス！</span>
+      </button>
+      <button class="rap-pad" data-sound="5">
+        <span class="pad-label">やばみ！</span>
+      </button>
+      <button class="rap-pad" data-sound="6">
+        <span class="pad-label">すごぉ！</span>
+      </button>
+      <button class="rap-pad" data-sound="7">
+        <span class="pad-label">へぇ〜</span>
+      </button>
+      <button class="rap-pad" data-sound="8">
+        <span class="pad-label">あざっ！</span>
+      </button>
+    </div>
+
+    <!-- コントロール -->
+    <div class="controls">
+      <button id="recordBtn" class="control-btn record">
+        <span class="btn-icon">🔴</span>
+        <span class="btn-text">録音</span>
+      </button>
+      <button id="playBtn" class="control-btn play" disabled>
+        <span class="btn-icon">▶️</span>
+        <span class="btn-text">再生</span>
+      </button>
+      <button id="clearBtn" class="control-btn clear">
+        <span class="btn-icon">🗑️</span>
+        <span class="btn-text">消去</span>
+      </button>
+    </div>
+
+    <!-- 履歴 -->
+    <div class="history">
+      <h3>📝 ラップ履歴</h3>
+      <div id="historyList" class="history-list">
+        <p class="empty">まだラップしていません...</p>
+      </div>
+    </div>
+
+    <!-- 音量メーター -->
+    <div class="volume-meter">
+      <div class="volume-bar-bg">
+        <div class="volume-bar" id="volumeBar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ヘルプモーダル -->
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <h2>🐛 ラップムしの遊び方</h2>
+      <ol>
+        <li>🎵 パッドをタップするとラップが再生されます</li>
+        <li>🔴 録音ボタンで自分のラップを録音できます</li>
+        <li>▶️ 再生ボタンで録音したラップを聴けます</li>
+        <li>🗑️ 消去ボタンで録音をクリアします</li>
+        <li>🎨 パッドを組み合わせてオリジナルラップを作ろう！</li>
+      </ol>
+      <p class="note">※ 音声ファイルは後で差し替え可能です</p>
+      <button id="closeHelp" class="close-btn">閉じる</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
